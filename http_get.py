@@ -14,24 +14,31 @@ while isOkay == 0:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   
     urlComp = re.match('(?:([^:\\/?#]+):)?(?:\\/\\/([^\\/?#]*))?([^?#]*)(?:\\?([^#]*))?(?:#(.*))?',url)
-
-    path = urlComp.group(0).strip(urlComp.group(1))
-    path = path.strip('://')
-    path = path.strip(urlComp.group(2))
-    path = path.strip('/')
+    
+    path = url.strip(urlComp.group(1))
+    path = path.lstrip('://')
+    path = path.lstrip(urlComp.group(2))
+    path = path.lstrip('/')
     is_ssl = urlComp.group(1)
 
 
     if is_ssl == 'https':
         hostname = urlComp.group(2)
+        if hostname == None or is_ssl == None:
+                    sys.stderr.write('Vstupny argument nie je URL\n')
+                    sys.exit(1)
         s.connect((hostname,443))
         s=ssl.wrap_socket(s)
+        request_header = 'GET /' + path + ' HTTP/1.1\r\nHost:' + hostname + '\r\nAccept-charset: UTF-8\r\n\r\n'
     else:
         hostname = urlComp.group(2)
+        if hostname == None or is_ssl == None:
+                    sys.stderr.write('Vstupny argument nie je URL\n')
+                    sys.exit(1)
         s.connect((hostname,80))
+        request_header = 'GET /' + path + ' HTTP/1.1\r\nHost:' + hostname + '\r\nAccept-charset: UTF-8\r\n\r\n'
+    print(is_ssl + hostname + path)
 
-
-    request_header = 'GET /' + path + ' HTTP/1.1\r\nHost:' + hostname + '\r\nAccept-charset: UTF-8\r\n\r\n'
     f=s.makefile('rwb')
     f.write(request_header.encode('ASCII'))
     f.flush()
@@ -87,7 +94,7 @@ while isOkay == 0:
                     del status
                     continue
         else:
-            sys.stderr.write('Unknown request/Bad request')
+            sys.stderr.write(statNum.decode('UTF-8') + ' ' + comment.decode('UTF-8'))
             sys.exit(1)
 
 f.close()   
