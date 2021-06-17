@@ -37,7 +37,6 @@ while isOkay == 0:
                     sys.exit(1)
         s.connect((hostname,80))
         request_header = 'GET /' + path + ' HTTP/1.1\r\nHost:' + hostname + '\r\nAccept-charset: UTF-8\r\n\r\n'
-    print(is_ssl + hostname + path)
 
     f=s.makefile('rwb')
     f.write(request_header.encode('ASCII'))
